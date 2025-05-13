@@ -1,64 +1,110 @@
-# Data Breach Monitor
+# Data Breach Detector
 
-A Python-based tool for monitoring and detecting potential data breaches by checking if your email addresses or usernames have appeared in known data breach databases.
+A Python-based command-line tool for early detection of suspicious activity in system logs - such as brute-force login attempts - to help identify potential data breaches as they happen.
 
 ---
 
 ## Features
 
-- Checks if your email or username has been compromised in known data breaches.
-- Supports multiple data sources for comprehensive monitoring.
-- Simple command-line interface for ease of use.
-- Easily extensible to support additional breach sources.
+- Real-time log monitoring using the `watchdog` library
+- Detection of suspicious patterns (e.g., multiple failed login attempts)
+- Support for custom log files (`auth.log` simulated)
+- Modular alert system (currently prints to console, easily extendable)
+- Easily customizable detection thresholds and logic
 
 ---
 
-## Installation
+## 🛠Installation
 
 1. **Clone the Repository**
 
    ```bash
-   git clone https://github.com/ariktadas144/data-breach-monitor.git
-   cd data-breach-monitor
+   git clone https://github.com/yourusername/data-breach-detector.git
+   cd data-breach-detector
    ```
 
 2. **Install Dependencies**
 
-   Make sure you have Python 3.x installed. Then run:
+   Make sure Python 3.x is installed. Then install dependencies:
 
    ```bash
    pip install -r requirements.txt
    ```
 
+   If `requirements.txt` doesn't exist, just install `watchdog`:
+
+   ```bash
+   pip install watchdog
+   ```
+
 ---
+
+## Project Structure
+
+```
+data_breach_detector/
+├── cli.py             # Command-line interface
+├── monitor.py         # Real-time log file watcher
+├── detector.py        # Breach detection logic
+├── alert.py           # Alerting system (prints or sends alerts)
+├── sample_logs/
+│   └── auth.log       # Sample log file to simulate attacks
+```
 
 ## Usage
 
-Run the main script and follow the prompts:
+1. **Start Real-Time Monitoring**
 
-```bash
-python main.py
-```
+   ```bash
+   python cli.py monitor
+   ```
 
-You will be asked to enter the email address or username you want to check. The tool will then query the supported breach databases and display the results.
+   Watches `sample_logs/auth.log` and automatically scans for anomalies on any file change.
+
+2. **Run One-Time Scan**
+
+   ```bash
+   python cli.py scan
+   ```
+
+   Scans the current log file for potential data breach indicators (e.g., brute-force attempts).
+
+3. **Trigger a Manual Alert (Test)**
+
+   ```bash
+   python cli.py alert
+   ```
+
+   Sends a manual test alert.
+
+---
+
+## Simulating a Breach
+
+- Open `sample_logs/auth.log` in a text editor.
+- Add 10+ lines simulating failed login attempts, for example:
+
+  ```
+  May 13 10:01:00 server sshd[1234]: Failed password for invalid user admin from 192.168.1.101
+  ```
+
+- Save the file.
+- The monitor will detect the change and scan it.
 
 ---
 
 ## Configuration
 
-- Configuration options (such as API keys for certain breach databases) can be set in a configuration file or as environment variables, depending on the data sources used.
-- Refer to the comments in the code for details on adding API keys or customizing sources.
+- **Thresholds:** Detection logic in `detector.py` can be adjusted for different log formats or threshold sensitivity.
+- **Alerting:** `alert.py` can be extended to send alerts via email (`smtplib`), Slack, Telegram, or Discord.
 
 ---
 
-## Directory Structure
+## To-Do / Future Features
 
-```
-data-breach-monitor/
-├── main.py
-├── requirements.txt
-├── README.md
-└── [other supporting modules and files]
-```
+- Email/Discord/Slack notifications
+- Configurable alert thresholds via CLI or config file
+- Dashboard with breach activity timeline
+- Integration with system logs on Linux (`/var/log/auth.log`)
 
 ---
