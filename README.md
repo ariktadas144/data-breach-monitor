@@ -6,15 +6,17 @@ A Python-based command-line tool for early detection of suspicious activity in s
 
 ## Features
 
-- Real-time log monitoring using the `watchdog` library
-- Detection of suspicious patterns (e.g., multiple failed login attempts)
-- Support for custom log files (`auth.log` simulated)
-- Modular alert system (currently prints to console, easily extendable)
-- Easily customizable detection thresholds and logic
+- Real-time log monitoring using the `watchdog` library  
+- Automatic detection of suspicious patterns (e.g., multiple failed login attempts)  
+- Scans simulated or real system log files (`auth.log`)  
+- Generates a graph showing failed login frequency over time  
+- Sends email alerts with the graph image attached  
+- Modular architecture for alerts, detection logic, and future integrations  
+- Customizable detection thresholds and log patterns  
 
 ---
 
-## 🛠Installation
+## Installation
 
 1. **Clone the Repository**
 
@@ -25,16 +27,14 @@ A Python-based command-line tool for early detection of suspicious activity in s
 
 2. **Install Dependencies**
 
-   Make sure Python 3.x is installed. Then install dependencies:
-
    ```bash
    pip install -r requirements.txt
    ```
 
-   If `requirements.txt` doesn't exist, just install `watchdog`:
+   If `requirements.txt` is missing, install manually:
 
    ```bash
-   pip install watchdog
+   pip install watchdog matplotlib
    ```
 
 ---
@@ -43,13 +43,31 @@ A Python-based command-line tool for early detection of suspicious activity in s
 
 ```
 data_breach_detector/
-├── cli.py             # Command-line interface
-├── monitor.py         # Real-time log file watcher
-├── detector.py        # Breach detection logic
-├── alert.py           # Alerting system (prints or sends alerts)
+├── cli.py               # Command-line interface
+├── monitor.py           # Real-time log monitoring using watchdog
+├── detector.py          # Log analysis and anomaly detection
+├── alerts.py            # Sends alerts via console + email (with graph)
+├── visualizer.py        # Graphs failed login attempts with matplotlib
 ├── sample_logs/
-│   └── auth.log       # Sample log file to simulate attacks
+│   └── auth.log         # Simulated log file
+├── failed_attempts_plot.png  # Generated graph (auto-created)
 ```
+
+---
+
+## Configuration
+
+Edit `alerts.py` and set your SMTP details directly:
+
+```python
+SENDER_EMAIL = "your_email@gmail.com"
+SENDER_PASSWORD = "your_app_password"
+RECIPIENT_EMAIL = "recipient_email@gmail.com"
+```
+
+For Gmail users: enable 2FA and use an App Password.
+
+---
 
 ## Usage
 
@@ -59,52 +77,58 @@ data_breach_detector/
    python cli.py monitor
    ```
 
-   Watches `sample_logs/auth.log` and automatically scans for anomalies on any file change.
+   This watches the `sample_logs/auth.log` file and scans automatically when modified.
 
-2. **Run One-Time Scan**
+2. **Run a Manual Scan**
 
    ```bash
    python cli.py scan
    ```
 
-   Scans the current log file for potential data breach indicators (e.g., brute-force attempts).
+   Scans the current log file, generates a graph, and sends an alert email if a breach is detected.
 
-3. **Trigger a Manual Alert (Test)**
+3. **Trigger a Manual Test Alert**
 
    ```bash
    python cli.py alert
    ```
 
-   Sends a manual test alert.
+   Sends a test alert (console + email without graph).
 
 ---
 
 ## Simulating a Breach
 
-- Open `sample_logs/auth.log` in a text editor.
-- Add 10+ lines simulating failed login attempts, for example:
+Open `sample_logs/auth.log` in a text editor.
 
-  ```
-  May 13 10:01:00 server sshd[1234]: Failed password for invalid user admin from 192.168.1.101
-  ```
+Add 11 or more lines like:
 
-- Save the file.
-- The monitor will detect the change and scan it.
+```
+May 13 10:01:00 server sshd[1234]: Failed password for invalid user admin from 192.168.1.101
+```
 
----
+Save the file.
 
-## Configuration
-
-- **Thresholds:** Detection logic in `detector.py` can be adjusted for different log formats or threshold sensitivity.
-- **Alerting:** `alert.py` can be extended to send alerts via email (`smtplib`), Slack, Telegram, or Discord.
+If monitoring is running, it will detect and alert immediately.
 
 ---
 
-## To-Do / Future Features
+## Graph Example
 
-- Email/Discord/Slack notifications
-- Configurable alert thresholds via CLI or config file
-- Dashboard with breach activity timeline
-- Integration with system logs on Linux (`/var/log/auth.log`)
+When a breach is detected:
+
+- A line chart is generated showing login attempt frequency  
+- The chart is saved as `failed_attempts_plot.png`  
+- This image is attached to the email alert  
+
+---
+
+## To-Do / Future Enhancements
+
+- Embed chart in email body (HTML email)  
+- CLI-configurable thresholds and paths  
+- Integration with Slack, Discord, or Telegram for real-time alerts  
+- Web dashboard (Flask/React) to view live log and alerts  
+- Syslog and `/var/log/auth.log` support for production Linux systems  
 
 ---
