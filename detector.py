@@ -25,9 +25,14 @@ def scan_logs(log_path="./sample_logs/auth.log"):
     if failed_count > 10:
         print("[ALERT] Unusual number of failed logins!")
         send_alert(f"Detected {failed_count} failed login attempts.")
-        custom_scope = {
-            "failed_attempts": ts_list
-        }
-        exec(open("visualizer.py").read(), custom_scope)
+
+        
+        global failed_attempts
+        failed_attempts = ts_list
+    try:
+        exec(open("visualizer.py").read(), {"failed_attempts": ts_list})
+    except Exception as e:
+        print(f"[VISUALIZER] Graph generation failed: {e}")
+
     else:
         print("[SCAN] No significant anomalies.")
