@@ -1,3 +1,5 @@
+from alerts import send_alert
+
 def scan_logs(log_path="./sample_logs/auth.log"):
     print("[SCAN] Scanning for anomalies...")
     failed_attempts = 0
@@ -5,9 +7,9 @@ def scan_logs(log_path="./sample_logs/auth.log"):
         for line in f:
             if "Failed password" in line:
                 failed_attempts += 1
+    print(f"[DEBUG] Failed attempts count: {failed_attempts}")
     if failed_attempts > 10:
         print("[ALERT] Unusual number of failed logins!")
-        from alert import send_alert
         send_alert(f"Detected {failed_attempts} failed login attempts.")
     else:
         print("[SCAN] No significant anomalies.")
