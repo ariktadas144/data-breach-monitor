@@ -1,15 +1,33 @@
 from alerts import send_alert
+from datetime import datetime
 
 def scan_logs(log_path="./sample_logs/auth.log"):
     print("[SCAN] Scanning for anomalies...")
-    failed_attempts = 0
+    failed_count = 0
+    ts_list = []
+
     with open(log_path, "r") as f:
         for line in f:
             if "Failed password" in line:
-                failed_attempts += 1
-    print(f"[DEBUG] Failed attempts count: {failed_attempts}")
-    if failed_attempts > 10:
+                failed_count += 1
+
+                try:
+                    parts = line.split()
+                    date_str = "2025 " + " ".join(parts[0:3])
+                    dt = datetime.strptime(date_str, "%Y %b %d %H:%M:%S")
+                    ts_list.append(dt.strftime("%Y-%m-%d %H:%M:%S"))
+                except Exception as e:
+                    print(f"[WARN] Failed to parse timestamp: {e}")
+                    continue
+
+    print(f"[DEBUG] Failed attempts count: {failed_count}")
+
+    if failed_count > 10:
         print("[ALERT] Unusual number of failed logins!")
-        send_alert(f"Detected {failed_attempts} failed login attempts.")
+        send_alert(f"Detected {failed_count} failed login attempts.")
+        custom_scope = {
+            "failed_attempts": ts_list
+        }
+        exec(open("visualizer.py").read(), custom_scope)
     else:
         print("[SCAN] No significant anomalies.")
