@@ -6,7 +6,7 @@ from detector import scan_logs
 class LogHandler(FileSystemEventHandler):
     def __init__(self):
         self.last_processed = 0
-        self.cooldown_seconds = 1  # Ignore duplicate events within 1 second
+        self.cooldown_seconds = 1  
 
     def on_modified(self, event):
         if event.src_path.endswith(".log"):
